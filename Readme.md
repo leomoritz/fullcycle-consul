@@ -2,7 +2,7 @@
 Clone o projeto  
 * HTTPS
 ~~~bash  
-  git clone https://github.com/leomoritz/fullcycle-consul.git
+git clone https://github.com/leomoritz/fullcycle-consul.git
 ~~~
 
 * SSH

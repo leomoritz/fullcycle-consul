@@ -60,3 +60,28 @@ Consultando host específico no servidor DNS (é obrigatório incluir *.node.con
 ~~~bash  
 dig @localhost -p 8600 consul01.node.consul
 ~~~
+
+## Criando um cluster
+
+Executa o consul em modo server
+
+~~~bash
+mkdir /etc/consul.d
+mkdir /var/lib/consul
+consul agent -server -bootstrap-expect=3 -node=consulserver01 -bind=172.19.0.3 -data-dir=/var/lib/consul -config-dir=/etc/consul.d
+~~~
+
+**node:** nome do servidor
+
+**bind:** ip do servidor
+
+**-data-dir:** local no servidor onde ficarão os arquivos do consul
+
+**-config-dir:** local no servidor onde ficarão os arquivos de configuração do consul
+
+Liga um server com outro(s) server(s) consul que também foi executado em modo server. Por exemplo:
+
+~~~bash
+consul join 172.19.0.4
+~~~
+

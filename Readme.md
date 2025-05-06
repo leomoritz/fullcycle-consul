@@ -85,3 +85,17 @@ Liga um server com outro(s) server(s) consul que também foi executado em modo s
 consul join 172.19.0.4
 ~~~
 
+## Criando um client
+
+Executa o consul em modo client
+
+~~~bash
+mkdir /var/lib/consul
+consul agent -bind=172.19.0.4 -data-dir=/var/lib/consul -config-dir=/etc/consul.d
+~~~
+
+Liga um client com um dos servers do cluster criado anteriormente. Por exemplo:
+
+~~~bash
+consul join 172.19.0.3
+~~~

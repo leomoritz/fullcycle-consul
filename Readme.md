@@ -380,3 +380,46 @@ consul agent -config-dir=/etc/consul.d
 
 OBS: Lembrar de conferir os IPs configurados no arquivo e também de executar os servers configurados no retry_join.
 
+## Trabalhando com criptografia para garantir a segurança dos nossos clusters
+1. Gerar um keygen pelo próprio consul
+~~~bash
+consul keygen
+~~~
+
+2. Adicionar a chave no arquivo de configuração de cada server, por exemplo:
+~~~json
+"encrypt": "chave gerada no comando anterior"    
+~~~
+
+3. Por garantia, limpar em cada server a pasta tmp pra excluir coisas antigas do consul e evitar problemas:
+~~~bash
+rm -rf /tmp/*
+~~~
+
+4. Subir o consul nos servers novamente conforme comando abaixo
+~~~bash
+consul agent -config-dir=/etc/consul.d
+~~~
+
+5. Se um server não tiver a chave de criptografia, ele não conseguirá fazer parte do cluster. 
+Agora segue abaixo uma forma de ver a comunicação entre os servers no cluster:
+
+~~~bash
+apk add tcpdump # instalar em qualquer um dos servers caso não possua
+tcpdump -i eth0 -an port 8301 -A
+~~~
+
+Será impresso a comunicação entre os servers, porém estará criptograda:
+~~~log
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+18:40:58.204543 IP 172.19.0.2.8301 > 172.19.0.5.8301: UDP, length 115
+E.....@.@.+E........ m m.{X...](.......j...     ....k%..........[.........b...&...<...F....0.....
+ ..A.X+,.......8p.o.V.#7..2.(Y.;.>..>.TM
+H.w.....
+18:40:58.204903 IP 172.19.0.5.8301 > 172.19.0.2.8301: UDP, length 180
+E...o.@.@.r......... m m..X....J.K..rv,n...+...Z....d.....O.Vd..........[yZ.>..UM..[@1.R.m".D......d=.gB2.P.N.....vOH'...L.;@..7......G.....h.....a. .a..(#............h..'C.....%.c.r.hu.!.Zr..W.nVH..]...]H(l.
+18:40:58.880106 IP 172.19.0.6.8301 > 172.19.0.2.8301: UDP, length 115
+E.....@.@..Q........ m m.{X..L....f..hb....mf..!..c.......r.^T.Fu.7`,jq....Q..o3...O}.......H....s.,....\.&.....%O.:.R'.$.E5...B.?l.4.R.38<.Du.
+18:40:58.880235 IP 172.19.0.2.8301 > 172.19.0.6.8301: UDP, length 180
+~~~

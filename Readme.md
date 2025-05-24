@@ -347,6 +347,36 @@ nginx.service.consul.   0       IN      A       172.19.0.5
 ;; MSG SIZE  rcvd: 81
 ~~~
 
+## Subindo server via arquivo pra evitar comandos bash
+É possível configurar um arquivo para subir os servers, segue exemplo abaixo onde os IPs podem mudar de acordo com os servers:
+~~~json
+{   
+    "server":true,
+    "bind_addr":"172.19.0.4",
+    "bootstrap_expect":3,
+    "data_dir":"/tmp",
+    "retry_join":["172.19.0.3", "172.19.0.6"]
+}
+~~~
+* Arquivo foi criado em servers/server01/server.json
 
+Após isso, precisamos mapear o volume no docker-compose no server01:
+~~~yaml
+volumes:
+        - ./servers/server01:/etc/consul.d
+~~~
 
+Em seguida, derrubar o docker-compose e subir novamente
+~~~bash
+docker-compose down
+docker-compose up -d
+~~~
+
+Por fim, basta acessar o server e executar o comando consul
+~~~bash
+docker exec -it consulserver01 sh
+consul agent -config-dir=/etc/consul.d
+~~~
+
+OBS: Lembrar de conferir os IPs configurados no arquivo e também de executar os servers configurados no retry_join.
 
